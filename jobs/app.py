@@ -5,11 +5,10 @@ Last Updated: 17 June 2022
 app.py file for flask application 
 '''
 
-
-import flask as fl
+from flask import Flask
 from flask import render_template
 
-app = fl.Flask(__name__)
+app = Flask(__name__)
 
 # Creating route in flask
 @app.route('/')
