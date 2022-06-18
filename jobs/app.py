@@ -5,10 +5,10 @@ Last Updated: 17 June 2022
 app.py file for flask application 
 '''
 
-from email.policy import default
 from flask import Flask
-from flask import render_template, g
+from flask import render_template, g, request, redirect, url_for
 import sqlite3
+import datetime
 
 # Initializing a Flask object
 app = Flask(__name__)
@@ -80,3 +80,23 @@ def employer(employer_id):
     jobs = execute_sql('SELECT job.id, job.title, job.description, job.salary FROM job JOIN employer ON employer.id = job.employer_id WHERE employer.id = ?', [employer_id])
     reviews = execute_sql('SELECT review, rating, title, date, status FROM review JOIN employer ON employer.id = review.employer_id WHERE employer.id = ?', [employer_id])
     return render_template('employer.html', employer=employer, jobs=jobs, reviews=reviews)
+
+# Review form
+@app.route('/employer/<employer_id>/review', methods=('GET','POST'))
+def review(employer_id):
+
+    if request.method == 'POST':
+
+        review = request.form['review']
+        rating = request.form['rating']
+        title = request.form['title']
+        status = request.form['status']
+
+        date = datetime.now().strftime("%m/%d/%y")
+
+        execute_sql('INSERT INTO review (review, rating, title, date, status, employer_id) VALUES (?, ?, ?, ?, ?, ?)', (review, rating, title, date, status, employer_id), commit=True)
+
+        return redirect(url_for('employer',employer_id=employer_id))
+
+    return render_template('review.html', employer_id=employer_id)
+
